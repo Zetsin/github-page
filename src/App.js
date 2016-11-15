@@ -1,6 +1,8 @@
 import Url from 'url'
 import Path from 'path'
 
+import Repos from './Repos'
+
 import React, { Component } from 'react'
 import logo from './logo.svg'
 import './App.css'
@@ -21,23 +23,9 @@ class App extends Component {
     this.onLoadData()
   }
   init () {
-    const repos = {
-      'zetsin-github': [
-        {
-          repo: 'node-sdl2',
-          path: '/',
-          branch: ''
-        },
-        {
-          repo: 'redis-cover',
-          path: '/',
-          branch: ''
-        }
-      ]
-    }
     let items = []
-    Object.keys(repos).forEach(user => {
-      let userRepos = repos[user]
+    Object.keys(Repos).forEach(user => {
+      let userRepos = Repos[user]
       userRepos.forEach(({
         repo,
         path = '/',
@@ -279,7 +267,7 @@ class App extends Component {
                   }
 
                   loop(this.state.root)
-                  return list
+                  return list.reverse()
                 })()}
               </div>
             </div>
