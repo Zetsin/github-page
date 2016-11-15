@@ -1,6 +1,6 @@
 {
   "name": "github-page",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "devDependencies": {
     "react-scripts": "0.7.0"
   },
@@ -14,5 +14,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "homepage": "https://zetsin.github.io/page"
 }
