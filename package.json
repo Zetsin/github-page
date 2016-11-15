@@ -1,6 +1,6 @@
 {
   "name": "github-page",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "devDependencies": {
     "react-scripts": "0.7.0"
   },
