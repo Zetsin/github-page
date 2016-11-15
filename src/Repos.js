@@ -1,5 +1,5 @@
 export default {
-  'zetsin-github': [
+  'zetsin': [
     {
       repo: 'page',
       path: '/contents',
