@@ -88,8 +88,8 @@ class App extends Component {
             return
           }
 
-          item.img = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
-          if (item.img) {
+          let isIMG = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
+          if (isIMG) {
             return
           }
 
@@ -179,10 +179,10 @@ class App extends Component {
                       if (item.type === 'dir') {
                         loop(item)
                       } else {
-                        item.img = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
+                        let isIMG = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
                         list.push(
                           <Card
-                            loading={!item.img && !this.state.contents[item.html_url]}
+                            loading={!isIMG && !this.state.contents[item.html_url]}
                             id={item.html_url}
                             key={item.html_url}
                             className='custom-card'
@@ -195,9 +195,12 @@ class App extends Component {
                                     type='ghost'
                                     size='small'
                                     icon='reload'
-                                    disabled={item.img}
                                     onClick={e => {
-                                      this.onLoadContent(item)
+                                      if(isIMG) {
+                                        
+                                      } else {
+                                        this.onLoadContent(item)
+                                      }
                                     }}>
                                     {(() => {
                                       if (item.size === 0) return '0 B'
@@ -252,7 +255,7 @@ class App extends Component {
                                 })()}
                               </Breadcrumb>}>
                             {(() => {
-                              if (item.img) {
+                              if (isIMG) {
                                 let img = this.state.images[item.html_url] || {}
                                 return (
                                   <Row type='flex' justify='center' align='top'>
