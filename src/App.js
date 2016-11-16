@@ -9,7 +9,7 @@ import React, { Component } from 'react'
 import logo from './logo.svg'
 import './App.css'
 
-import { BackTop, Menu, Icon, Card, Breadcrumb, Button, Row, Col } from 'antd'
+import { Menu, Icon, Card, Breadcrumb, Button, Row, Col } from 'antd'
 
 class App extends Component {
   constructor (props) {
@@ -88,8 +88,8 @@ class App extends Component {
             return
           }
 
-          let isIMG = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
-          if (isIMG) {
+          let isImage = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
+          if (isImage) {
             return
           }
 
@@ -124,12 +124,22 @@ class App extends Component {
   }
   render () {
     return (
-      <div className='ant-layout-aside'>
-        <BackTop />
-        <aside className='ant-layout-sider'>
-          <div className='ant-layout-logo'>
+      <div style={{
+        position: 'fixed',
+        height: '100%',
+        width: '100%',
+        display: 'flex'
+      }}>
+        <div style={{
+          flex: 1,
+          overflow: 'scroll',
+          background: '#404040'
+        }}>
+          <div style={{
+            textAlign: 'center'
+          }}>
             <a href='#'>
-              <img src={logo} alt='logo' />
+              <img src={logo} alt='logo' className='App-logo' />
             </a>
           </div>
           <Menu
@@ -166,156 +176,161 @@ class App extends Component {
               return loop(this.state.root)
             })()}
           </Menu>
-        </aside>
-        <div className='ant-layout-main'>
-          <div className='ant-layout-container'>
-            <div className='ant-layout-content'>
-              <div>
-                {(() => {
-                  let list = []
-                  let loop = (node) => {
-                    let items = node.items || []
-                    items.forEach(item => {
-                      if (item.type === 'dir') {
-                        loop(item)
-                      } else {
-                        let isIMG = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
-                        list.push(
-                          <Card
-                            loading={!isIMG && !this.state.contents[item.html_url]}
-                            id={item.html_url}
-                            key={item.html_url}
-                            className='custom-card'
-                            style={{ width: '100%' }}
-                            bodyStyle={{ padding: 0 }}
-                            extra={(() => {
-                              return (
-                                <Button.Group>
-                                  <Button
-                                    type='ghost'
-                                    size='small'
-                                    icon='reload'
-                                    onClick={e => {
-                                      if(isIMG) {
-                                        
-                                      } else {
-                                        this.onLoadContent(item)
-                                      }
-                                    }}>
-                                    {(() => {
-                                      if (item.size === 0) return '0 B'
-                                      let sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-                                      let k = 1000
-                                      let i = Math.floor(Math.log(item.size) / Math.log(k))
-                                      return (item.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i]
-                                    })()}
-                                  </Button>
-                                </Button.Group>
-                              )
-                            })()}
-                            title={
-                              <Breadcrumb>
-                                {(() => {
-                                  let list = []
-
-                                  let urlobj = Url.parse(item.html_url)
-                                  let host = urlobj.protocol + '//' + urlobj.host + '/'
-                                  let pathnodes = urlobj.pathname.replace(/^\/+|\/+$/g, '').split('/')
-
-                                  list.push({
-                                    type: 'user',
-                                    name: pathnodes[0],
-                                    html_url: host + pathnodes[0]
-                                  })
-                                  list.push({
-                                    type: 'book',
-                                    name: pathnodes[1],
-                                    html_url: host + pathnodes[0] + '/' + pathnodes[1]
-                                  })
-
-                                  host = item.html_url.slice(0, item.html_url.lastIndexOf(item.path))
-                                  pathnodes = item.path.split('/')
-
-                                  pathnodes.forEach((pathnode, index) => {
-                                    list.push({
-                                      type: index < pathnodes.length - 1 ? 'folder' : 'file',
-                                      name: pathnode,
-                                      html_url: item.html_url.slice(0, item.html_url.lastIndexOf(pathnodes.slice(index + 1).join('/')))
-                                    })
-                                  })
-
-                                  return list.map(pathnode => {
-                                    return (
-                                      <Breadcrumb.Item key={pathnode.html_url} href={pathnode.html_url} target='_blank'>
-                                        <Icon type={pathnode.type} />
-                                        <span>{pathnode.name}</span>
-                                      </Breadcrumb.Item>
-                                    )
-                                  })
-                                })()}
-                              </Breadcrumb>}>
-                            {(() => {
-                              if (isIMG) {
-                                let img = this.state.images[item.html_url] || {}
-                                return (
-                                  <Row type='flex' justify='center' align='top'>
-                                    <Col span={16}>
-                                      <div className='custom-image'>
-                                        <img
-                                          width='100%'
-                                          alt={item.name}
-                                          src={item.download_url}
-                                          onLoad={e => {
-                                            let target = e.currentTarget
-                                            let setContent = (exif) => {
-                                              this.setState({
-                                                images: Object.assign(this.state.images, {
-                                                  [item.html_url]: {
-                                                    exif,
-                                                    width: target.width,
-                                                    height: target.height
-                                                  }
-                                                })
-                                              })
-                                            }
-                                            Exif.getData(target, function () {
-                                              let allTags = Exif.getAllTags(this)
-                                              delete allTags.MakerNote
-                                              setContent(JSON.stringify(allTags, null, 2))
-                                            })
-                                          }} />
-                                      </div>
-                                    </Col>
-                                    <Col span={8}>
-                                      <div className='custom-content' style={{
-                                        overflow: 'scroll',
-                                        height: img.height
-                                      }}>
-                                        <pre>{img.exif}</pre>
-                                      </div>
-                                    </Col>
-                                  </Row>
-                                )
-                              } else {
-                                return (
-                                  <div className='custom-content'>
-                                    <pre>{this.state.contents[item.html_url]}</pre>
-                                  </div>
-                                )
-                              }
-                            })()}
-                          </Card>
+        </div>
+        <div style={{
+          flex: 4,
+          overflow: 'scroll',
+          padding: 24
+        }}>
+          {(() => {
+            let list = []
+            let loop = (node) => {
+              let items = node.items || []
+              items.forEach(item => {
+                if (item.type === 'dir') {
+                  loop(item)
+                } else {
+                  let isImage = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
+                  list.push(
+                    <Card
+                      id={item.html_url}
+                      loading={!isImage && !this.state.contents[item.html_url]}
+                      key={item.html_url}
+                      className='custom-card'
+                      style={{ width: '100%' }}
+                      bodyStyle={{ padding: 0 }}
+                      extra={(() => {
+                        return (
+                          <Button.Group>
+                            <Button
+                              type='ghost'
+                              size='small'
+                              icon='reload'
+                              onClick={e => {
+                                if (isImage) {
+                                  let image = document.getElementById(new Buffer(item.html_url).toString('base64'))
+                                  if (image) {
+                                    let src = image.src
+                                    image.src = ''
+                                    image.src = src
+                                  }
+                                } else {
+                                  this.onLoadContent(item)
+                                }
+                              }}>
+                              {(() => {
+                                if (item.size === 0) return '0 B'
+                                let sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+                                let k = 1000
+                                let i = Math.floor(Math.log(item.size) / Math.log(k))
+                                return (item.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i]
+                              })()}
+                            </Button>
+                          </Button.Group>
                         )
-                      }
-                    })
-                  }
+                      })()}
+                      title={
+                        <Breadcrumb>
+                          {(() => {
+                            let list = []
 
-                  loop(this.state.root)
-                  return list.reverse()
-                })()}
-              </div>
-            </div>
-          </div>
+                            let urlobj = Url.parse(item.html_url)
+                            let host = urlobj.protocol + '//' + urlobj.host + '/'
+                            let pathnodes = urlobj.pathname.replace(/^\/+|\/+$/g, '').split('/')
+
+                            list.push({
+                              type: 'user',
+                              name: pathnodes[0],
+                              html_url: host + pathnodes[0]
+                            })
+                            list.push({
+                              type: 'book',
+                              name: pathnodes[1],
+                              html_url: host + pathnodes[0] + '/' + pathnodes[1]
+                            })
+
+                            host = item.html_url.slice(0, item.html_url.lastIndexOf(item.path))
+                            pathnodes = item.path.split('/')
+
+                            pathnodes.forEach((pathnode, index) => {
+                              list.push({
+                                type: index < pathnodes.length - 1 ? 'folder' : 'file',
+                                name: pathnode,
+                                html_url: item.html_url.slice(0, item.html_url.lastIndexOf(pathnodes.slice(index + 1).join('/')))
+                              })
+                            })
+
+                            return list.map(pathnode => {
+                              return (
+                                <Breadcrumb.Item key={pathnode.html_url} href={pathnode.html_url} target='_blank'>
+                                  <Icon type={pathnode.type} />
+                                  <span>{pathnode.name}</span>
+                                </Breadcrumb.Item>
+                              )
+                            })
+                          })()}
+                        </Breadcrumb>}>
+                      {(() => {
+                        if (isImage) {
+                          let image = this.state.images[item.html_url] || {}
+                          return (
+                            <Row type='flex' justify='center' align='top'>
+                              <Col span={16}>
+                                <div className='custom-image'>
+                                  <img
+                                    id={new Buffer(item.html_url).toString('base64')}
+                                    width='100%'
+                                    alt={item.name}
+                                    src={item.download_url}
+                                    onLoad={e => {
+                                      let image = e.currentTarget
+
+                                      let setContent = (exif) => {
+                                        this.setState({
+                                          images: Object.assign(this.state.images, {
+                                            [item.html_url]: {
+                                              exif,
+                                              width: image.width,
+                                              height: image.height
+                                            }
+                                          })
+                                        })
+                                      }
+                                      Exif.getData(image, function () {
+                                        let allTags = Exif.getAllTags(this)
+                                        delete allTags.MakerNote
+                                        setContent(Exif.pretty(this))
+                                      })
+                                    }} />
+                                </div>
+                              </Col>
+                              <Col span={8}>
+                                <div className='custom-content' style={{
+                                  overflow: 'scroll',
+                                  height: image.height
+                                }}>
+                                  <pre>{image.exif}</pre>
+                                </div>
+                              </Col>
+                            </Row>
+                          )
+                        } else {
+                          return (
+                            <div className='custom-content'>
+                              <pre>{this.state.contents[item.html_url]}</pre>
+                            </div>
+                          )
+                        }
+                      })()}
+                    </Card>
+                  )
+                }
+              })
+            }
+
+            loop(this.state.root)
+            return list.reverse()
+          })()}
         </div>
       </div>
     )
