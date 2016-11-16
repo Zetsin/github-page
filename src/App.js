@@ -236,27 +236,33 @@ class App extends Component {
 
                             let urlobj = Url.parse(item.html_url)
                             let host = urlobj.protocol + '//' + urlobj.host + '/'
-                            let pathnodes = urlobj.pathname.replace(/^\/+|\/+$/g, '').split('/')
+                            let infos = urlobj.pathname.replace(/^\/+|\/+$/g, '').split('/')
+
+                            let user = infos[0]
+                            let userurl = host + user
 
                             list.push({
                               type: 'user',
-                              name: pathnodes[0],
-                              html_url: host + pathnodes[0]
+                              name: user,
+                              html_url: userurl
                             })
+
+                            let repo = infos[1]
+                            let repourl = userurl + '/' + repo + '/tree/' + Url.parse(item.url, true).query.ref
+
                             list.push({
                               type: 'book',
-                              name: pathnodes[1],
-                              html_url: host + pathnodes[0] + '/' + pathnodes[1]
+                              name: repo,
+                              html_url: repourl
                             })
 
-                            host = item.html_url.slice(0, item.html_url.lastIndexOf(item.path))
-                            pathnodes = item.path.split('/')
-
+                            let pathnodes = item.path.split('/')
                             pathnodes.forEach((pathnode, index) => {
+                              repourl += '/' + pathnode
                               list.push({
-                                type: index < pathnodes.length - 1 ? 'folder' : 'file',
+                                type: index === pathnodes.length - 1 ? 'file' : 'folder',
                                 name: pathnode,
-                                html_url: item.html_url.slice(0, item.html_url.lastIndexOf(pathnodes.slice(index + 1).join('/')))
+                                html_url: repourl
                               })
                             })
 
