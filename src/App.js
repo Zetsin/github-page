@@ -1,13 +1,15 @@
 import Url from 'url'
 import Path from 'path'
 
+import Exif from 'exif-js'
+
 import Repos from './Repos'
 
 import React, { Component } from 'react'
 import logo from './logo.svg'
 import './App.css'
 
-import { BackTop, Menu, Icon, Card, Breadcrumb, Button } from 'antd'
+import { BackTop, Menu, Icon, Card, Breadcrumb, Button, Row, Col } from 'antd'
 
 class App extends Component {
   constructor (props) {
@@ -17,7 +19,8 @@ class App extends Component {
       root: {
         items: this.init()
       },
-      contents: {}
+      contents: {},
+      images: {}
     }
 
     this.onLoadData()
@@ -82,6 +85,11 @@ class App extends Component {
           node.items.push(item)
 
           if (!item.download_url) {
+            return
+          }
+
+          item.img = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
+          if (item.img) {
             return
           }
 
@@ -171,8 +179,7 @@ class App extends Component {
                       if (item.type === 'dir') {
                         loop(item)
                       } else {
-                        let extname = Path.extname(item.name)
-                        item.img = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(extname) >= 0
+                        item.img = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
                         list.push(
                           <Card
                             loading={!item.img && !this.state.contents[item.html_url]}
@@ -182,27 +189,26 @@ class App extends Component {
                             style={{ width: '100%' }}
                             bodyStyle={{ padding: 0 }}
                             extra={(() => {
-                              if (!item.img) {
-                                return (
-                                  <Button.Group>
-                                    <Button
-                                      type='ghost'
-                                      size='small'
-                                      icon='reload'
-                                      onClick={e => {
-                                        this.onLoadContent(item)
-                                      }}>
-                                      {(() => {
-                                        if (item.size === 0) return '0 B'
-                                        let sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-                                        let k = 1000
-                                        let i = Math.floor(Math.log(item.size) / Math.log(k))
-                                        return (item.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i]
-                                      })()}
-                                    </Button>
-                                  </Button.Group>
-                                )
-                              }
+                              return (
+                                <Button.Group>
+                                  <Button
+                                    type='ghost'
+                                    size='small'
+                                    icon='reload'
+                                    disabled={item.img}
+                                    onClick={e => {
+                                      this.onLoadContent(item)
+                                    }}>
+                                    {(() => {
+                                      if (item.size === 0) return '0 B'
+                                      let sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+                                      let k = 1000
+                                      let i = Math.floor(Math.log(item.size) / Math.log(k))
+                                      return (item.size / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i]
+                                    })()}
+                                  </Button>
+                                </Button.Group>
+                              )
                             })()}
                             title={
                               <Breadcrumb>
@@ -247,10 +253,45 @@ class App extends Component {
                               </Breadcrumb>}>
                             {(() => {
                               if (item.img) {
+                                let img = this.state.images[item.html_url] || {}
                                 return (
-                                  <div className='custom-image'>
-                                    <img alt={item.name} width='100%' src={item.download_url} />
-                                  </div>
+                                  <Row type='flex' justify='center' align='top'>
+                                    <Col span={16}>
+                                      <div className='custom-image'>
+                                        <img
+                                          width='100%'
+                                          alt={item.name}
+                                          src={item.download_url}
+                                          onLoad={e => {
+                                            let target = e.currentTarget
+                                            let setContent = (exif) => {
+                                              this.setState({
+                                                images: Object.assign(this.state.images, {
+                                                  [item.html_url]: {
+                                                    exif,
+                                                    width: target.width,
+                                                    height: target.height
+                                                  }
+                                                })
+                                              })
+                                            }
+                                            Exif.getData(target, function () {
+                                              let allTags = Exif.getAllTags(this)
+                                              delete allTags.MakerNote
+                                              setContent(JSON.stringify(allTags, null, 2))
+                                            })
+                                          }} />
+                                      </div>
+                                    </Col>
+                                    <Col span={8}>
+                                      <div className='custom-content' style={{
+                                        overflow: 'scroll',
+                                        height: img.height
+                                      }}>
+                                        <pre>{img.exif}</pre>
+                                      </div>
+                                    </Col>
+                                  </Row>
                                 )
                               } else {
                                 return (
