@@ -165,7 +165,7 @@ class App extends Component {
                     return (
                       <Menu.Item
                         key={item.html_url}>
-                        <a href={'/#' + item.html_url}>
+                        <a href={'#' + item.html_url}>
                           <span><Icon type='file' />{item.name}</span>
                         </a>
                       </Menu.Item>
