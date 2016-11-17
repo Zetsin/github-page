@@ -1,5 +1,5 @@
 export default {
-  'Zetsin': [
+  'zetsin': [
     {
       repo: 'page',
       path: '/',
