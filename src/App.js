@@ -9,7 +9,7 @@ import React, { Component } from 'react'
 import logo from './logo.svg'
 import './App.css'
 
-import { Menu, Icon, Card, Breadcrumb, Button, Row, Col } from 'antd'
+import { BackTop, Menu, Icon, Card, Breadcrumb, Button, Row, Col } from 'antd'
 
 class App extends Component {
   constructor (props) {
@@ -124,20 +124,10 @@ class App extends Component {
   }
   render () {
     return (
-      <div style={{
-        position: 'fixed',
-        height: '100%',
-        width: '100%',
-        display: 'flex'
-      }}>
-        <div style={{
-          flex: 1,
-          overflow: 'scroll',
-          background: '#404040'
-        }}>
-          <div style={{
-            textAlign: 'center'
-          }}>
+      <div>
+        <BackTop />
+        <div className='App-side'>
+          <div className='App-logo'>
             <a href='#'>
               <img src={logo} alt='logo' className='App-logo' />
             </a>
@@ -177,11 +167,7 @@ class App extends Component {
             })()}
           </Menu>
         </div>
-        <div style={{
-          flex: 4,
-          overflow: 'scroll',
-          padding: 24
-        }}>
+        <div className='App-main'>
           {(() => {
             let list = []
             let loop = (node) => {
@@ -193,11 +179,10 @@ class App extends Component {
                   let isImage = ['.png', '.jpg', '.jpeg', '.gif', '.bmp'].indexOf(Path.extname(item.name)) >= 0
                   list.push(
                     <Card
+                      className='App-card'
                       id={item.html_url}
                       loading={!isImage && !this.state.contents[item.html_url]}
                       key={item.html_url}
-                      className='custom-card'
-                      style={{ width: '100%' }}
                       bodyStyle={{ padding: 0 }}
                       extra={(() => {
                         return (
@@ -282,37 +267,35 @@ class App extends Component {
                           return (
                             <Row type='flex' justify='center' align='top'>
                               <Col span={16}>
-                                <div className='custom-image'>
-                                  <img
-                                    id={new Buffer(item.html_url).toString('base64')}
-                                    width='100%'
-                                    alt={item.name}
-                                    src={item.download_url}
-                                    onLoad={e => {
-                                      let image = e.currentTarget
+                                <img
+                                  className='App-image'
+                                  id={new Buffer(item.html_url).toString('base64')}
+                                  width='100%'
+                                  alt={item.name}
+                                  src={item.download_url}
+                                  onLoad={e => {
+                                    let target = e.currentTarget
 
-                                      let setContent = (exif) => {
-                                        this.setState({
-                                          images: Object.assign(this.state.images, {
-                                            [item.html_url]: {
-                                              exif,
-                                              width: image.width,
-                                              height: image.height
-                                            }
-                                          })
+                                    let setContent = (exif) => {
+                                      this.setState({
+                                        images: Object.assign(this.state.images, {
+                                          [item.html_url]: {
+                                            exif,
+                                            width: target.width,
+                                            height: target.height
+                                          }
                                         })
-                                      }
-                                      Exif.getData(image, function () {
-                                        let allTags = Exif.getAllTags(this)
-                                        delete allTags.MakerNote
-                                        setContent(Exif.pretty(this))
                                       })
-                                    }} />
-                                </div>
+                                    }
+                                    Exif.getData(target, function () {
+                                      let allTags = Exif.getAllTags(this)
+                                      delete allTags.MakerNote
+                                      setContent(Exif.pretty(this))
+                                    })
+                                  }} />
                               </Col>
                               <Col span={8}>
-                                <div className='custom-content' style={{
-                                  overflow: 'scroll',
+                                <div className='App-content' style={{
                                   height: image.height
                                 }}>
                                   <pre>{image.exif}</pre>
@@ -322,7 +305,7 @@ class App extends Component {
                           )
                         } else {
                           return (
-                            <div className='custom-content'>
+                            <div className='App-content'>
                               <pre>{this.state.contents[item.html_url]}</pre>
                             </div>
                           )

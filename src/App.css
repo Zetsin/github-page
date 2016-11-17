@@ -2,20 +2,25 @@
   text-align: center;
 }
 
+.App-side {
+  position: fixed;
+  height: 100%;
+  width: 250px;
+  background: #404040;
+  overflow: auto;
+}
+
 .App-logo {
-  animation: App-logo-spin infinite 20s linear;
   height: 80px;
+  text-align: center;
+}
+.App-logo img {
+  animation: App-logo-spin infinite 20s linear;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
-}
-
-.App-intro {
-  font-size: large;
+.App-main {
+  padding: 24px;
+  margin-left: 250px;
 }
 
 @keyframes App-logo-spin {
@@ -23,12 +28,14 @@
   to { transform: rotate(360deg); }
 }
 
-.custom-card {
+.App-card {
   margin-bottom: 25px;
 }
-.custom-image img {
+.App-image {
   display: block;
+  border-radius: 0 0 0 4px;
 }
-.custom-content {
+.App-content {
+  overflow: auto;
   padding: 10px 16px;
 }
